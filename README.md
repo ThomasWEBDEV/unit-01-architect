@@ -8,7 +8,6 @@ Assistant de conception logicielle propulsé par IA. Génère des architectures,
 - Architecture technique adaptée (simple/medium/enterprise)
 - Plan de développement structuré avec estimations
 - Stack recommandée avec justifications
-- Veille technologique en temps réel
 - Stratégie de tests
 - Alertes sur les technologies obsolètes
 
@@ -16,12 +15,13 @@ Assistant de conception logicielle propulsé par IA. Génère des architectures,
 
 | Couche | Technologie |
 |--------|-------------|
-| Frontend | Vue.js 3, Vite, Tailwind CSS |
+| Frontend | Vue.js 3, Vite, Tailwind CSS 4 |
 | Backend | Node.js, Express |
-| IA | Claude API (Anthropic) |
+| IA | Claude API (`claude-opus-4-6`, thinking adaptatif) |
 | Déploiement | GCP Cloud Run |
 
 ## Installation
+
 ```bash
 # Cloner le dépôt
 git clone https://github.com/ThomasWEBDEV/unit-01-architect.git
@@ -34,13 +34,42 @@ cd frontend && npm install
 cd ../backend && npm install
 ```
 
-## Développement
-```bash
-# Lancer le frontend (depuis /frontend)
-npm run dev
+## Configuration
 
+Créer un fichier `.env` dans `backend/` :
+
+```env
+ANTHROPIC_API_KEY=sk-ant-...   # Laisser vide ou mettre "mock" pour le mode mock
+PORT=3000
+```
+
+Le backend démarre automatiquement en **mode mock** si `ANTHROPIC_API_KEY` est absent ou vaut `mock` — aucune clé API nécessaire pour développer.
+
+## Développement
+
+```bash
 # Lancer le backend (depuis /backend)
-npm run dev
+npm run dev   # → http://localhost:3000
+
+# Lancer le frontend (depuis /frontend)
+npm run dev   # → http://localhost:5173
+```
+
+L'URL du backend est configurable côté frontend via `VITE_API_URL` (défaut : `http://localhost:3000`).
+
+## API
+
+| Méthode | Route | Description |
+|---------|-------|-------------|
+| `GET` | `/health` | Vérification de l'état du serveur |
+| `POST` | `/api/generate` | Génère un plan de projet à partir d'une idée |
+
+### Exemple de requête
+
+```bash
+curl -X POST http://localhost:3000/api/generate \
+  -H "Content-Type: application/json" \
+  -d '{"idea": "Une app de gestion de tâches collaborative"}'
 ```
 
 ## Licence

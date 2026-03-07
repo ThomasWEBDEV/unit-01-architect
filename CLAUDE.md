@@ -11,7 +11,7 @@ UNIT-01 Architect is an AI-powered software design assistant (in French). It gen
 Monorepo with two top-level directories:
 
 - `frontend/` — Vue.js 3 + Vite + Tailwind CSS 4
-- `backend/` — Node.js + Express + Claude API (**not yet created**)
+- `backend/` — Node.js + Express + Claude API
 
 Target deployment: GCP Cloud Run.
 
@@ -23,16 +23,16 @@ All commands run from their respective subdirectory.
 
 ```bash
 npm install       # install dependencies
-npm run dev       # dev server (hot reload)
+npm run dev       # dev server (hot reload) → http://localhost:5173
 npm run build     # production build → dist/
 npm run preview   # preview production build locally
 ```
 
-### Backend (`cd backend`) — to be scaffolded
+### Backend (`cd backend`)
 
 ```bash
 npm install
-npm run dev
+npm run dev       # dev server with nodemon → http://localhost:3000
 ```
 
 ## Frontend Key Details
@@ -41,13 +41,30 @@ npm run dev
 - Vue components use `<script setup>` SFC syntax exclusively.
 - Entry point: `frontend/src/main.js` → mounts `App.vue` on `#app`.
 - Components live in `frontend/src/components/`.
+- `IdeaForm.vue` is the main component: textarea input + submit button + result display.
+- API calls are centralized in `frontend/src/services/api.js` (`generatePlan(idea)`).
+- Backend URL is configurable via `VITE_API_URL` env var (defaults to `http://localhost:3000`).
 
-## Backend (planned)
+## Backend Key Details
 
-Will expose a REST API consumed by the frontend. Must integrate the Claude API (`@anthropic-ai/sdk`) to generate:
-- Optimized system prompts
-- Technical architecture (simple / medium / enterprise)
-- Development plans with estimations
-- Recommended stack with justifications
-- Test strategy
-- Obsolescence alerts on technologies
+- Entry point: `backend/src/index.js` — Express server on port 3000 (or `PORT` env var).
+- Routes: `POST /api/generate`, `GET /health`.
+- Claude integration: `backend/src/services/claude.js` — uses `@anthropic-ai/sdk` with model `claude-opus-4-6` and adaptive thinking.
+- **Mock mode**: automatically activated when `ANTHROPIC_API_KEY` is absent or set to `"mock"`. Returns a structured fake response — no API credits needed for development.
+- Config loaded via `dotenv` from `backend/.env`.
+- Error handling middleware: `backend/src/middleware/errorHandler.js`.
+
+## Environment Variables
+
+### backend/.env
+
+```env
+ANTHROPIC_API_KEY=sk-ant-...   # omit or set to "mock" for mock mode
+PORT=3000
+```
+
+### frontend/.env (optional)
+
+```env
+VITE_API_URL=http://localhost:3000
+```
