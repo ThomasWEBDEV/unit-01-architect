@@ -24,19 +24,21 @@
     <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
 
     <div v-if="result" class="rounded-lg border border-gray-200 bg-gray-50 p-6">
-      <pre class="whitespace-pre-wrap text-sm text-gray-800 font-sans">{{ result }}</pre>
+      <div class="prose prose-sm max-w-none text-gray-800" v-html="renderedResult" />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { marked } from 'marked';
 import { generatePlan } from '../services/api.js';
 
 const idea = ref('');
 const result = ref('');
 const error = ref('');
 const loading = ref(false);
+const renderedResult = computed(() => result.value ? marked.parse(result.value) : '');
 
 async function handleSubmit() {
   error.value = '';
