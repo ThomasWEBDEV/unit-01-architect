@@ -32,6 +32,16 @@
     <!-- Erreur -->
     <p v-if="error" class="text-sm text-red-500">{{ error }}</p>
 
+    <!-- Exporter -->
+    <div v-if="result" class="flex justify-end">
+      <button
+        @click="handleExport"
+        class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-colors"
+      >
+        Exporter en Markdown
+      </button>
+    </div>
+
     <!-- Résultats structurés -->
     <div v-if="result" class="space-y-3">
 
@@ -159,6 +169,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { generatePlan } from '../services/api.js';
+import { planToMarkdown, downloadMarkdown } from '../services/export.js';
 import SectionCard from './SectionCard.vue';
 
 const idea = ref('');
@@ -206,6 +217,12 @@ function riskClass(risk) {
 
 function riskLabel(risk) {
   return { low: 'Faible', medium: 'Moyen', high: 'Élevé' }[risk] ?? risk;
+}
+
+function handleExport() {
+  const md = planToMarkdown(result.value, idea.value);
+  const slug = idea.value.trim().slice(0, 30).replace(/\s+/g, '-').toLowerCase() || 'plan';
+  downloadMarkdown(md, `${slug}-architecture.md`);
 }
 
 async function handleSubmit() {
