@@ -3,12 +3,16 @@ import IdeaForm from './components/IdeaForm.vue';
 </script>
 
 <template>
-  <div class="min-h-screen bg-white">
-    <header class="border-b border-gray-200 px-6 py-4">
-      <h1 class="text-xl font-bold text-indigo-600">UNIT-01 Architect</h1>
-      <p class="text-sm text-gray-500">Assistant IA de conception logicielle</p>
+  <div class="min-h-screen bg-white text-slate-900">
+    <header class="border-b border-slate-200 px-8 py-5">
+      <div class="max-w-3xl mx-auto flex items-baseline justify-between">
+        <div>
+          <span class="text-lg font-semibold tracking-tight text-slate-900">Unit-01 Architect</span>
+        </div>
+        <span class="text-sm text-slate-400">Assistant de conception logicielle</span>
+      </div>
     </header>
-    <main class="py-10">
+    <main class="py-16">
       <IdeaForm />
     </main>
   </div>
