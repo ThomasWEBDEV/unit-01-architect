@@ -54,6 +54,14 @@
 
       <!-- 1. System Prompt -->
       <SectionCard title="Synthèse" :open="open.systemPrompt" @toggle="toggle('systemPrompt')">
+        <template #actions>
+          <button
+            @click.stop="copySystemPrompt"
+            class="text-xs font-medium px-2.5 py-1 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 hover:border-slate-300 transition-colors"
+          >
+            {{ copied ? 'Copié !' : 'Copier' }}
+          </button>
+        </template>
         <p class="text-sm text-slate-600 leading-relaxed">{{ result.systemPrompt }}</p>
       </SectionCard>
 
@@ -185,6 +193,7 @@ const error = ref('');
 const loading = ref(false);
 const pdfLoading = ref(false);
 const resultsRef = ref(null);
+const copied = ref(false);
 
 const open = ref({
   systemPrompt: true,
@@ -226,6 +235,12 @@ function riskClass(risk) {
 
 function riskLabel(risk) {
   return { low: 'Faible', medium: 'Moyen', high: 'Élevé' }[risk] ?? risk;
+}
+
+async function copySystemPrompt() {
+  await navigator.clipboard.writeText(result.value.systemPrompt);
+  copied.value = true;
+  setTimeout(() => { copied.value = false; }, 2000);
 }
 
 function handleExport() {
