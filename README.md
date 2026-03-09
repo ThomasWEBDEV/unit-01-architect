@@ -4,12 +4,22 @@ Assistant de conception logicielle propulsé par IA. Génère des architectures,
 
 ## Fonctionnalités
 
+### Génération de plan
+
 - Génération de System Prompt optimisé pour Claude
-- Architecture technique adaptée (simple/medium/enterprise)
-- Plan de développement structuré avec estimations
-- Stack recommandée avec justifications
-- Stratégie de tests
-- Alertes sur les technologies obsolètes
+- Architecture technique adaptée (simple / medium / enterprise)
+- Plan de développement structuré en phases avec estimations
+- Stack recommandée par couche (frontend, backend, base de données, infrastructure)
+- Stratégie de tests (unitaires, intégration, E2E)
+- Veille technologique avec technologies à surveiller
+- Alertes obsolescence avec niveau de risque (faible / moyen / élevé)
+
+### Interface
+
+- Affichage des 7 sections en cartes dépliables
+- Bouton **Copier** le System Prompt dans le presse-papiers
+- **Export Markdown** — télécharge le plan complet au format `.md`
+- **Export PDF** — génère un PDF paginé directement depuis le Markdown (sans dépendance DOM)
 
 ## Stack technique
 
