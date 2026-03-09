@@ -250,11 +250,12 @@ function handleExport() {
 }
 
 async function handleExportPdf() {
-  if (!resultsRef.value) return;
+  if (!result.value) return;
   pdfLoading.value = true;
   try {
+    const md = planToMarkdown(result.value, idea.value);
     const slug = idea.value.trim().slice(0, 30).replace(/\s+/g, '-').toLowerCase() || 'plan';
-    await downloadPdf(resultsRef.value, `${slug}-architecture.pdf`);
+    await downloadPdf(md, `${slug}-architecture.pdf`);
   } finally {
     pdfLoading.value = false;
   }

@@ -100,31 +100,69 @@ export function downloadMarkdown(content, filename = 'plan-architecture.md') {
   URL.revokeObjectURL(url);
 }
 
-export async function downloadPdf(element, filename = 'plan-architecture.pdf') {
-  const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
-    import('html2canvas'),
-    import('jspdf'),
-  ]);
+export async function downloadPdf(markdownContent, filename = 'plan-architecture.pdf') {
+  const { jsPDF } = await import('jspdf');
 
-  const canvas = await html2canvas(element, {
-    scale: 2,
-    useCORS: true,
-    backgroundColor: '#ffffff',
-  });
-
-  const imgData = canvas.toDataURL('image/png');
-  const pdf = new jsPDF({ orientation: 'portrait', unit: 'px', format: 'a4' });
-
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
-  const imgWidth = pageWidth;
-  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  const margin = 50;
+  const contentWidth = pageWidth - margin * 2;
+  let y = margin;
 
-  let y = 0;
-  while (y < imgHeight) {
-    if (y > 0) pdf.addPage();
-    pdf.addImage(imgData, 'PNG', 0, -y, imgWidth, imgHeight);
-    y += pageHeight;
+  function checkPageBreak(needed) {
+    if (y + needed > pageHeight - margin) {
+      pdf.addPage();
+      y = margin;
+    }
+  }
+
+  function renderText(text, fontSize, style, r, g, b) {
+    pdf.setFont('helvetica', style);
+    pdf.setFontSize(fontSize);
+    pdf.setTextColor(r, g, b);
+    const lines = pdf.splitTextToSize(text, contentWidth);
+    const lineHeight = fontSize * 1.4;
+    checkPageBreak(lines.length * lineHeight);
+    pdf.text(lines, margin, y);
+    y += lines.length * lineHeight;
+  }
+
+  const strip = (s) => s.replace(/\*\*(.*?)\*\*/g, '$1').replace(/`(.*?)`/g, '$1');
+
+  for (const line of markdownContent.split('\n')) {
+    if (line.startsWith('# ')) {
+      y += 8;
+      renderText(line.slice(2), 22, 'bold', 15, 15, 15);
+      y += 6;
+    } else if (line.startsWith('## ')) {
+      y += 12;
+      checkPageBreak(30);
+      renderText(line.slice(3), 16, 'bold', 30, 30, 30);
+      y += 4;
+    } else if (line.startsWith('### ')) {
+      y += 8;
+      renderText(line.slice(4), 13, 'bold', 50, 50, 50);
+      y += 2;
+    } else if (line.startsWith('---')) {
+      y += 4;
+      checkPageBreak(10);
+      pdf.setDrawColor(200, 200, 200);
+      pdf.line(margin, y, pageWidth - margin, y);
+      y += 10;
+    } else if (line.startsWith('> ')) {
+      renderText(line.slice(2), 11, 'italic', 80, 80, 80);
+    } else if (line.startsWith('- ')) {
+      renderText('• ' + strip(line.slice(2)), 11, 'normal', 40, 40, 40);
+      y += 1;
+    } else if (line.startsWith('_') && line.endsWith('_') && line.length > 2) {
+      renderText(line.slice(1, -1), 10, 'italic', 100, 100, 100);
+    } else if (line.trim() === '') {
+      y += 6;
+    } else {
+      renderText(strip(line), 11, 'normal', 40, 40, 40);
+      y += 1;
+    }
   }
 
   pdf.save(filename);
