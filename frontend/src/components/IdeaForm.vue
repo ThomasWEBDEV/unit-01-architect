@@ -33,17 +33,24 @@
     <p v-if="error" class="text-sm text-red-500">{{ error }}</p>
 
     <!-- Exporter -->
-    <div v-if="result" class="flex justify-end">
+    <div v-if="result" class="flex justify-end gap-2">
       <button
         @click="handleExport"
         class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-colors"
       >
         Exporter en Markdown
       </button>
+      <button
+        @click="handleExportPdf"
+        :disabled="pdfLoading"
+        class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+      >
+        {{ pdfLoading ? 'Génération PDF…' : 'Exporter en PDF' }}
+      </button>
     </div>
 
     <!-- Résultats structurés -->
-    <div v-if="result" class="space-y-3">
+    <div v-if="result" ref="resultsRef" class="space-y-3">
 
       <!-- 1. System Prompt -->
       <SectionCard title="Synthèse" :open="open.systemPrompt" @toggle="toggle('systemPrompt')">
@@ -169,13 +176,15 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { generatePlan } from '../services/api.js';
-import { planToMarkdown, downloadMarkdown } from '../services/export.js';
+import { planToMarkdown, downloadMarkdown, downloadPdf } from '../services/export.js';
 import SectionCard from './SectionCard.vue';
 
 const idea = ref('');
 const result = ref(null);
 const error = ref('');
 const loading = ref(false);
+const pdfLoading = ref(false);
+const resultsRef = ref(null);
 
 const open = ref({
   systemPrompt: true,
@@ -223,6 +232,17 @@ function handleExport() {
   const md = planToMarkdown(result.value, idea.value);
   const slug = idea.value.trim().slice(0, 30).replace(/\s+/g, '-').toLowerCase() || 'plan';
   downloadMarkdown(md, `${slug}-architecture.md`);
+}
+
+async function handleExportPdf() {
+  if (!resultsRef.value) return;
+  pdfLoading.value = true;
+  try {
+    const slug = idea.value.trim().slice(0, 30).replace(/\s+/g, '-').toLowerCase() || 'plan';
+    await downloadPdf(resultsRef.value, `${slug}-architecture.pdf`);
+  } finally {
+    pdfLoading.value = false;
+  }
 }
 
 async function handleSubmit() {

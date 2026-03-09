@@ -99,3 +99,33 @@ export function downloadMarkdown(content, filename = 'plan-architecture.md') {
   a.click();
   URL.revokeObjectURL(url);
 }
+
+export async function downloadPdf(element, filename = 'plan-architecture.pdf') {
+  const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+    import('html2canvas'),
+    import('jspdf'),
+  ]);
+
+  const canvas = await html2canvas(element, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: '#ffffff',
+  });
+
+  const imgData = canvas.toDataURL('image/png');
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'px', format: 'a4' });
+
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  const imgWidth = pageWidth;
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+  let y = 0;
+  while (y < imgHeight) {
+    if (y > 0) pdf.addPage();
+    pdf.addImage(imgData, 'PNG', 0, -y, imgWidth, imgHeight);
+    y += pageHeight;
+  }
+
+  pdf.save(filename);
+}
