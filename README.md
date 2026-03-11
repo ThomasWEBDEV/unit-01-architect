@@ -82,6 +82,13 @@ curl -X POST http://localhost:3000/api/generate \
   -d '{"idea": "Une app de gestion de tâches collaborative"}'
 ```
 
+## Déploiement
+
+| Service | URL |
+|---------|-----|
+| Frontend | https://unit01-frontend-203722821617.europe-west1.run.app |
+| Backend | https://unit01-backend-203722821617.europe-west1.run.app |
+
 ## Licence
 
 MIT
